@@ -652,30 +652,35 @@ function ZoomComponent(props: ZoomComponentProps) {
     useHotkeys('esc', props.onExit);
 
     useEffect(() => {
-        // Push a new entry onto the history stack
-        window.history.pushState({ popupOpen: true }, '');
-
+        if (!window.history.state.popupOpen) {
+            // console.log('Push a new entry onto the history stack')
+            window.history.pushState({popupOpen: true}, '');
+        }
         // Event listener to handle back navigation
         const handleBack = (event: PopStateEvent) => {
-            if (event.state && event.state.popupOpen) {
-                // Prevent the default back action
+            // console.log('Handling back event');
+            // preventing default back action if the new state isn't the popup
+            if (!event.state.popupOpen) {
+                // console.log('Preventing the default back action');
                 event.preventDefault();
                 // Call the function to close the overlay
                 props.onExit();
             }
         };
-
+        // console.log('Adding event listener');
         window.addEventListener('popstate', handleBack);
 
         // Cleanup function to restore the state
         return () => {
+            // console.log('Removing event listener');
             window.removeEventListener('popstate', handleBack);
             // Try to move back in history stack if the popup was open
             if (window.history.state && window.history.state.popupOpen) {
+                // console.log('Popping history');
                 window.history.back();
             }
         };
-    }, []); // Ensure this effect runs only once upon mounting and unmounting
+    }, []);
 
     return (
         <div className={overlayStyles.overlay}

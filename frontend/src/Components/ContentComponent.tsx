@@ -652,10 +652,7 @@ function ZoomComponent(props: ZoomComponentProps) {
     useHotkeys('esc', props.onExit);
 
     useEffect(() => {
-        if (!window.history.state.popupOpen) {
-            // console.log('Push a new entry onto the history stack')
-            window.history.pushState({popupOpen: true}, '');
-        }
+
         // Event listener to handle back navigation
         const handleBack = (event: PopStateEvent) => {
             // console.log('Handling back event');
@@ -667,8 +664,14 @@ function ZoomComponent(props: ZoomComponentProps) {
                 props.onExit();
             }
         };
-        // console.log('Adding event listener');
-        window.addEventListener('popstate', handleBack);
+
+        // make sure we're only adding the event listener once
+        if (!window.history.state.popupOpen) {
+            // console.log('Push a new entry onto the history stack')
+            window.history.pushState({popupOpen: true}, '');
+            // console.log('Adding event listener');
+            window.addEventListener('popstate', handleBack);
+        }
 
         // Cleanup function to restore the state
         return () => {
